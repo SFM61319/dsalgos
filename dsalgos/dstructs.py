@@ -39,7 +39,7 @@ class Data:
         return False
 
     def __bool__(self) -> bool:
-        return self == Data()
+        return self != Data()
     
     def __hash__(self) -> int:
         return hash(self.data)
