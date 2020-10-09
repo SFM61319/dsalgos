@@ -1,11 +1,11 @@
-# Import `annotations` from `__future__` for delayed annotations
-from __future__ import annotations
-
-
 """A module to to work with Data Structures
 
 (with documentation for everything in detail, for beginners)
 """
+
+
+# Import `annotations` from `__future__` for delayed annotations
+from __future__ import annotations
 
 
 __all__ = (
