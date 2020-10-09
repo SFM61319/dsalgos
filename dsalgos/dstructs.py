@@ -8,9 +8,7 @@
 from __future__ import annotations
 
 
-__all__ = (
-    'Data', 'Node'
-)
+__all__ = ('Data', 'Node')
 
 
 # Import `typing` for type annotations
