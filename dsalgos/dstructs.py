@@ -8,7 +8,7 @@
 from __future__ import annotations
 
 
-__all__ = ('Data', 'Node')
+__all__ = ('Data', 'Node', 'Array', 'LinkedList')
 
 
 # Import `array` from `array` as `_Array` for C type arrays
@@ -65,6 +65,22 @@ class Data:
 
         return None
 
+    def __add__(self, data) -> Data:
+        if isinstance(data, Data):
+            return Data(
+                *self.args, *data.args,
+                **self.kwargs, **data.kwargs
+            )
+        
+        raise TypeError(f"'{data}' must be of type 'Data'")
+    
+    def __iadd__(self, data) -> NoneType:
+        if isinstance(data, Data):
+            self.args = self.args + data.args
+            self.kwargs.update(data.kwargs)
+        
+        raise TypeError(f"'{data}' must be of type 'Data'")
+    
     @property
     def data(self) -> dict:
         return {
@@ -132,7 +148,7 @@ and next_ must be 'None' or of type 'Node'")
 
         if not isinstance(children, (list, tuple, set)):
             raise TypeError("children must be of \
-type 'list'|'tuple'|'set' containing 'Node' objects")
+type list|tuple|set containing 'Node' objects")
         
         self.data = data
         self._parent = parent
@@ -401,3 +417,181 @@ itemsize -- the length in bytes of one array item
 """
 
     pass
+
+
+class SinglyLinkedList:
+    """Instantiates a Singly Linked List object
+
+Parameters
+    head=None (Node) - A head node object (at index = 0)
+    elements=[] (list|tuple|set) - A default list of node objects
+
+Example
+    sllist = SinglyLinkedList()
+
+Explanation
+    A linked list is a linear collection of data elements, whose
+    order is not given by their physical placement in memory,
+    instead, each element points to the next. It is a data
+    structure consisting of a collection of nodes which together
+    represent a sequence. In its most basic form, each node contains:
+    data, and a reference (in other words, a link) to the next node
+    in the sequence. This structure allows for efficient insertion or
+    removal of elements from any position in the sequence during
+    iteration. More complex variants add additional links, allowing
+    more efficient insertion or removal of nodes at arbitrary
+    positions. A drawback of linked lists is that access time is
+    linear (and difficult to pipeline). Faster access, such as random
+    access, is not feasible. Arrays have better cache locality
+    compared to linked lists.
+
+    Linked lists are among the simplest and most common data structures
+    They can be used to implement several other common abstract data
+    types, including lists, stacks, queues, associative arrays, and
+    S-expressions, though it is not uncommon to implement those data
+    structures directly without using a linked list as the basis.
+
+    The principal benefit of a linked list over a conventional array
+    is that the list elements can be easily inserted or removed
+    without reallocation or reorganization of the entire structure
+    because the data items need not be stored contiguously in memory
+    or on disk, while restructuring an array at run-time is a much
+    more expensive operation. Linked lists allow insertion and
+    removal of nodes at any point in the list, and allow doing so
+    with a constant number of operations by keeping the link previous
+    to the link being added or removed in memory during list traversal.
+
+    On the other hand, since simple linked lists by themselves do not
+    allow random access to the data or any form of efficient indexing,
+    many basic operations—such as obtaining the last node of the list,
+    finding a node that contains a given datum, or locating the place
+    where a new node should be inserted—may require iterating through
+    most or all of the list elements. The advantages and disadvantages
+    of using linked lists are given below. Linked list are dynamic, so
+    the length of list can increase or decrease as necessary. Each
+    node does not necessarily follow the previous one physically
+    in the memory.
+"""
+
+    def __init__(
+        self,
+        head: typing.Union[Node, NoneType] = None,
+        elements: typing.Union[
+            typing.List[Node],
+            typing.Tuple[Node],
+            typing.Set[Node]
+        ] = []
+    ) -> NoneType:
+        if not isinstance(head, (Node, NoneType)):
+            raise TypeError("'head' must be 'None' or of type 'Node'")
+        
+        if not isinstance(elements, (list, tuple, set)):
+            raise TypeError("'elements' \
+must be a list|tuple|set of 'Node' objects")
+
+        self._head = head
+        self._elements = []
+
+        for i, element in enumerate(elements := list(elements)):
+            if not isinstance(element, Node):
+                raise TypeError(f"'{element}' must be of type 'Node'")
+            
+            if i < len(elements) - 1:
+                element.next_ = elements[i+1]
+            
+            self._elements.append(element)
+        
+        if isinstance(head, Node) and len(self._elements) > 0:
+            self._head.next_ = self._elements[0]
+        
+        return None
+    
+    def __repr__(self) -> str:
+        return f'SinglyLL({self.head}, {self.elements})'
+    
+    def __eq__(self, sllist) -> bool:
+        if isinstance(sllist, SinglyLinkedList):
+            return (
+                self.head == sllist.head and
+                self.elements == sllist.elements
+            )
+        
+        return False
+    
+    def __bool__(self) -> bool:
+        return bool(self.elements)
+    
+    def __len__(self) -> int:
+        return len(self.elements)
+    
+    def __iter__(self):
+        return iter(self.elements)
+    
+    def __hash__(self) -> int:
+        return hash(self.elements)
+    
+    def __contains__(self, element) -> bool:
+        return element in self.elements
+    
+    def __getitem__(self, index) -> Node:
+        return self.elements[index]
+    
+    def __setitem__(self, index, element) -> NoneType:
+        self.elements[index] = element
+        
+        if isinstance(index, int):
+            if index > 0:
+                self.elements[index-1].next_ = self.elements[index]
+        
+        return None
+    
+    def __add__(self, sllist) -> SinglyLinkedList:
+        if not isinstance(sllist, SinglyLinkedList):
+            raise TypeError(f"'{sllist}' must be of type 'SinglyLinkedList'")
+        
+        return SinglyLinkedList(self.head, self.elements+sllist.elements)
+    
+    def __iadd__(self, sllist) -> NoneType:
+        if not isinstance(sllist, SinglyLinkedList):
+            raise TypeError(f"'{sllist}' must be of type 'SinglyLinkedList'")
+        
+        self.elements.extend(sllist.elements)
+        
+        return None
+    
+    @property
+    def head(self) -> Node:
+        return self._head
+    
+    @head.setter
+    def head(self, head) -> NoneType:
+        self._head = head
+        
+        if isinstance(head, Node):
+            self._head.next_ = self.elements[0]
+        
+        return None
+    
+    @property
+    def elements(self) -> typing.Union[
+        typing.List[Node], typing.Tuple[Node], typing.Set[Node]
+    ]:
+        return self._elements
+    
+    @elements.setter
+    def elements(self, elements) -> NoneType:
+        for element in self:
+            element.next_ = None
+        
+        self._elements = []
+        
+        for i, element in enumerate(elements := list(elements)):
+            if not isinstance(element, Node):
+                raise TypeError(f"'{element}' must be of type 'Node'")
+            
+            if i < len(elements) - 1:
+                element.next_ = elements[i+1]
+            
+            self._elements.append(element)
+        
+        return None
