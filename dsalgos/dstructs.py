@@ -528,7 +528,7 @@ must be a list|tuple|set of 'Node' objects")
         return iter(self.elements)
     
     def __hash__(self) -> int:
-        return hash(self.elements)
+        return hash((self.head, *self.elements))
     
     def __contains__(self, element) -> bool:
         return element in self.elements
