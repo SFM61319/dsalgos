@@ -19,7 +19,7 @@ setuptools.setup(
     url=__github__,
     license='MIT',
     packages=setuptools.find_packages(),
-    install_requires=['typing'],
+    install_requires=[],
     classifiers=[
         'Programming Language :: Python :: 3',
         'License :: OSI Approved :: MIT License',
